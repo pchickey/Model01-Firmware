@@ -74,7 +74,9 @@
   */
 
 enum { MACRO_VERSION_INFO,
-       MACRO_ANY
+       MACRO_ANY,
+       MACRO_WORKSPACE_PREV,
+       MACRO_WORKSPACE_NEXT,
      };
 
 
@@ -131,18 +133,18 @@ enum { QWERTY, NUMPAD, FUNCTION }; // layers
 const Key keymaps[][ROWS][COLS] PROGMEM = {
 
   [QWERTY] = KEYMAP_STACKED
-  (___,          Key_1, Key_2, Key_3, Key_4, Key_5, Key_LEDEffectNext,
+  (Key_Escape,   Key_1, Key_2, Key_3, Key_4, Key_5, M(MACRO_WORKSPACE_PREV),
    Key_Backtick, Key_Q, Key_W, Key_E, Key_R, Key_T, Key_Tab,
    Key_PageUp,   Key_A, Key_S, Key_D, Key_F, Key_G,
    Key_PageDown, Key_Z, Key_X, Key_C, Key_V, Key_B, Key_Escape,
-   Key_LeftControl, Key_Backspace, Key_LeftGui, Key_LeftShift,
+   Key_LeftControl, Key_Backspace, Key_LeftShift, Key_LeftGui,
    ShiftToLayer(FUNCTION),
 
-   M(MACRO_ANY),  Key_6, Key_7, Key_8,     Key_9,         Key_0,         LockLayer(NUMPAD),
+   M(MACRO_WORKSPACE_NEXT),  Key_6, Key_7, Key_8,     Key_9,         Key_0,         LockLayer(NUMPAD),
    Key_Enter,     Key_Y, Key_U, Key_I,     Key_O,         Key_P,         Key_Equals,
                   Key_H, Key_J, Key_K,     Key_L,         Key_Semicolon, Key_Quote,
    Key_RightAlt,  Key_N, Key_M, Key_Comma, Key_Period,    Key_Slash,     Key_Minus,
-   Key_RightShift, Key_LeftAlt, Key_Spacebar, Key_RightControl,
+   Key_RightAlt,  Key_RightShift, Key_Spacebar, Key_RightControl,
    ShiftToLayer(FUNCTION)),
 
 
@@ -210,6 +212,19 @@ static void anyKeyMacro(uint8_t keyState) {
     kaleidoscope::hid::pressKey(lastKey);
 }
 
+static void workspacePrevMacro(uint8_t keyState) {
+  if (keyIsPressed(keyState)) {
+    kaleidoscope::hid::pressKey(Key_LeftGui);
+    kaleidoscope::hid::pressKey(Key_LeftArrow);
+  }
+}
+
+static void workspaceNextMacro(uint8_t keyState) {
+  if (keyIsPressed(keyState)) {
+    kaleidoscope::hid::pressKey(Key_LeftGui);
+    kaleidoscope::hid::pressKey(Key_RightArrow);
+  }
+}
 
 /** macroAction dispatches keymap events that are tied to a macro
     to that macro. It takes two uint8_t parameters.
@@ -232,6 +247,14 @@ const macro_t *macroAction(uint8_t macroIndex, uint8_t keyState) {
 
   case MACRO_ANY:
     anyKeyMacro(keyState);
+    break;
+
+  case MACRO_WORKSPACE_PREV:
+    workspacePrevMacro(keyState);
+    break;
+
+  case MACRO_WORKSPACE_NEXT:
+    workspaceNextMacro(keyState);
     break;
   }
   return MACRO_NONE;
